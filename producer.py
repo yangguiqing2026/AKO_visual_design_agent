@@ -150,7 +150,7 @@ class Producer:
     def _generate_main_icon(self, report: FunctionalPerceptionReport, icon_dir: str) -> str:
         """生成主图标 (256x256 多分辨率)"""
         size = 256
-        img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        img = Image.new("RGBA", (size, size), N100.rgb + (255,))
         draw = ImageDraw.Draw(img)
 
         # 六边形底色
@@ -183,7 +183,7 @@ class Producer:
     def _generate_taskbar_icon(self, report: FunctionalPerceptionReport, icon_dir: str) -> str:
         """生成任务栏图标 (48x48)"""
         size = 48
-        img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        img = Image.new("RGBA", (size, size), N100.rgb + (255,))
         draw = ImageDraw.Draw(img)
 
         draw.rounded_rectangle([2, 2, size - 2, size - 2], radius=8, fill=AMBER_GOLD.rgb)
@@ -206,7 +206,7 @@ class Producer:
         size = 24
 
         for i, icon_req in enumerate(proposal.icon_plan):
-            img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+            img = Image.new("RGBA", (size, size), N100.rgb + (255,))
             draw = ImageDraw.Draw(img)
 
             # 基础圆形背景

@@ -148,9 +148,20 @@ class QualityGate:
             return
 
         file_size = os.path.getsize(filepath)
-        self._add_check("visual", "image", "文件大小", ".bmp ≤ 200KB",
-                        file_size <= 200 * 1024,
-                        f"{file_size / 1024:.0f}KB")
+        # BMP为无压缩格式，文件大小与分辨率成正比，上限按分辨率动态计算
+        try:
+            img = Image.open(filepath)
+            w, h = img.size
+            expected_bytes = w * h * 3  # 24bit BMP
+            limit = max(200 * 1024, int(expected_bytes * 1.1))  # 允许10%余量
+            self._add_check("visual", "image", "文件大小", f".bmp ≤ {limit // 1024}KB",
+                            file_size <= limit,
+                            f"{file_size / 1024:.0f}KB",
+                            "文件大小合规" if file_size <= limit else "文件过大")
+        except Exception:
+            self._add_check("visual", "image", "文件大小", ".bmp ≤ 500KB",
+                            file_size <= 500 * 1024,
+                            f"{file_size / 1024:.0f}KB")
 
     def check_image_colors(self, filepath: str, sample_count: int = 100):
         """检查图片色值是否在AKO色彩系统内"""

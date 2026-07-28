@@ -27,8 +27,8 @@ SPLASH_TEMPLATES = {
         "name": "现代模板",
         "bg_color": N200.rgb,
         "accent_color": MOLTEN_GOLD.rgb,
-        "title_color": N800,
-        "subtitle_color": N600,
+        "title_color": N800.rgb,
+        "subtitle_color": N600.rgb,
         "brand_color": AMBER_GOLD.rgb,
     },
 }

@@ -132,7 +132,7 @@ class MockupGenerator:
         for i, hdr in enumerate(headers):
             hx = rx + 20 + i * col_w
             draw.rectangle([hx, table_y, hx + col_w, table_y + 32], fill=N400.rgb)
-            _draw_text(draw, hdr, hx + 8, table_y + 8, font_th, N800)
+            _draw_text(draw, hdr, hx + 8, table_y + 8, font_th, N800.rgb)
 
         # 表格数据行
         font_td = _get_font(11)
@@ -214,7 +214,7 @@ class MockupGenerator:
         log_x = 30 + chart_w
         log_w = w - log_x - 20
         font_log_title = _get_font(12, bold=True)
-        _draw_text(draw, "告警日志", log_x, chart_y + 8, font_log_title, N800)
+        _draw_text(draw, "告警日志", log_x, chart_y + 8, font_log_title, N800.rgb)
 
         log_items = [
             (SUCCESS.rgb, "14:30:05 节点A 恢复正常"),
@@ -245,7 +245,7 @@ class MockupGenerator:
         left_w = int(w * 0.2)
         draw.rectangle([0, 40, left_w, h - 28], fill=N300.rgb)
         font_panel = _get_font(12, bold=True)
-        _draw_text(draw, " 图层", 10, 50, font_panel, N800)
+        _draw_text(draw, " 图层", 10, 50, font_panel, N800.rgb)
 
         layers = ["背景", "墙体", "门窗", "标注", "家具"]
         font_layer = _get_font(11)
@@ -283,7 +283,7 @@ class MockupGenerator:
         # 右侧属性面板 (20%)
         right_x = canvas_x + canvas_w
         draw.rectangle([right_x, 40, w, h - 28], fill=N300.rgb)
-        _draw_text(draw, " 属性", right_x + 10, 50, font_panel, N800)
+        _draw_text(draw, " 属性", right_x + 10, 50, font_panel, N800.rgb)
 
         props = [("宽度", "200"), ("高度", "120"), ("角度", "0"), ("X", "400"), ("Y", "200")]
         font_prop = _get_font(11)

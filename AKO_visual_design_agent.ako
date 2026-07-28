@@ -1,0 +1,91 @@
+# AKO_visual_design_agent.ako —— AKO 打包项目文件
+# 作者：AKO_studio
+# 规范版本：v1.1
+
+project:
+  name: "visual_design_agent"
+  version: "1.2.0"
+  architecture: x64
+  company: "Guizhou AKO PBM Co., Ltd."
+  copyright: "© 2026 AKO_studio"
+  description: "AKO 视觉设计智能体 - 功能感知型四层架构 Perceptor→Planner→Reviewer→Producer"
+
+source:
+  path: "./dist"
+  main_executable: "AKO_visual_design_agent.exe"
+
+  excludes:
+    - "__pycache__"
+    - "*.pyc"
+    - "*.pyo"
+    - ".git"
+    - ".gitignore"
+    - "venv"
+    - ".venv"
+    - "node_modules"
+    - "*.log"
+    - "*.tmp"
+    - ".idea"
+    - ".vscode"
+    - "tests"
+    - "*.md"
+    - "*.bak"
+    - "*.spec"
+    - "output/"
+
+ako_branding:
+  icon:
+    source: "./ako_icon_kit/ako_icon.ico"
+    background: "transparent"
+    required_sizes: [256, 48, 32, 16]
+
+  colors:
+    primary: "#EBDAB9"      # 奶油金
+    background: "#C3BEB4"   # 冷暖灰
+    text: "#231E1C"         # 深棕黑
+    accent: "#A08C64"       # 琥珀金
+    highlight: "#B99F5F"    # 熔金
+
+  welcome_text: "欢迎使用 AKO 视觉设计智能体"
+  welcome_subtext: "功能感知型四层架构：感知→规划→评审→生产"
+  finish_text: "AKO 视觉设计智能体安装完成"
+  finish_subtext: "命令行使用：AKO_visual_design_agent.exe --help"
+
+  installer_style: "minimal"
+  window_title: "AKO 视觉设计智能体 安装向导"
+  logo_position: "top_right"
+
+dependencies:
+  runtime: []
+
+output:
+  naming_pattern: "AKO_{name}_v{version}_{arch}.exe"
+  directory: "./build"
+  sign: false
+  checksum: sha256
+  max_size_mb: 500
+
+  compression:
+    algorithm: lzma2
+    solid: true
+
+  output_cleanliness:
+    single_file_only: true
+    embed_manifest: true
+    embed_audit: true
+    cleanup_temp: true
+    verify_output: true
+
+install:
+  default_dir: "{pf}\\AKO\\AKO_visual_design_agent"
+  create_shortcuts: true
+  shortcut_locations:
+    - "{group}\\AKO Visual Design Agent"
+  add_to_path: true
+
+ako_meta:
+  agent_id: "AKO_visual_design_agent"
+  build_pipeline: "AKO_pack_agent"
+  tags: ["visual", "design", "cli", "four-layer"]
+  created_by: "AKO_studio"
+  build_date: "2026-07-28"

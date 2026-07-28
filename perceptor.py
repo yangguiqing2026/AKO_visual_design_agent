@@ -387,9 +387,9 @@ class Perceptor:
             type_counts = Counter(interface_types)
             report.interface_type = " + ".join(type_counts.most_common(2)[i][0]
                                                 for i in range(min(2, len(type_counts))))
-            report.template_id = type_counts.most_common(1)[0][0] if templates else "A"
+            most_common_type = type_counts.most_common(1)[0][0]
+            report.template_id = self.interface_matrix.get(most_common_type, {}).get("template", "A")
             # 从模板映射确定主UI模式
-            primary_type = type_counts.most_common(1)[0][0]
             for ftype, info in self.interface_matrix.items():
                 if info["template"] == report.template_id:
                     report.primary_ui_pattern = info["ui_pattern"]

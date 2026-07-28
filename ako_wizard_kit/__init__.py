@@ -29,7 +29,7 @@ TEMPLATES = {
         "name": "现代模板",
         "bg_color": N200.rgb,
         "accent_color": MOLTEN_GOLD.rgb,
-        "text_color": N800,
+        "text_color": N800.rgb,
         "border_color": N400.rgb,
     },
     "minimal": {
@@ -91,7 +91,7 @@ def _draw_brand_mark(draw: ImageDraw.Draw, x: int, y: int, size: int, color: Tup
         (x + size // 2 - inner_size // 2, y + size - inner_size // 3),
         (x + size // 2 + inner_size // 2, y + size - inner_size // 3),
     ]
-    draw.polygon(inner_points, fill=(255, 255, 255, 200))
+    draw.polygon(inner_points, fill=N100.rgb + (200,))
 
 
 class WizardGenerator:

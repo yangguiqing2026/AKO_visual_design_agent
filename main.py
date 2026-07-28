@@ -185,7 +185,8 @@ def run_functional_design_agent(config: dict, output_dir: str = "output"):
                 qg.check_png_file(apath)
                 qg.check_image_colors(apath)
             elif apath.endswith(".bmp"):
-                pass  # BMP检查可选
+                qg.check_bmp_file(apath)
+                qg.check_image_colors(apath)
 
         print(f"\n{qg.generate_summary()}")
 
@@ -525,6 +526,8 @@ def _run_visual_design_legacy(config: dict, output_dir: str = "output"):
     qg = QualityGate(project_name=agent_name)
     qg.check_ico_file(ico_path)
     qg.check_png_file(splash_path)
+    qg.check_image_colors(ico_path)
+    qg.check_image_colors(splash_path)
     print(f"\n{qg.generate_summary()}")
 
     print(f"\n视觉设计Agent（基础版）工作完成！输出目录: {agent_dir}")
