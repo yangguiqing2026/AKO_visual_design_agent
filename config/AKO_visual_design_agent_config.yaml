@@ -1,0 +1,15 @@
+# ============================================
+# Author: AKO_studio
+# Agent: AKO_visual_design_agent
+# Configuration File
+# ============================================
+
+agent:
+  id: "AKO_visual_design_agent"
+  name: "Ako Visual Design Agent"
+  log_level: "INFO"
+
+# TODO: Add agent-specific configuration below
+# example:
+#   param1: "value1"
+#   param2: 100

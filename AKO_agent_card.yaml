@@ -1,135 +1,133 @@
-# ============================================================
-# AKO_agent_card.yaml — Agent身份证（唯一身份标识）
-# ============================================================
-
-# --- 基础身份 ---
-agent_id: "AKO_visual_design_agent"
-name: "视觉设计Agent"
-version: "2.0.0"
-owner: "AKO_studio"
-status: "production"
-
-# --- 能力定义 ---
+agent_id: AKO_visual_design_agent
+name: 视觉设计Agent
+version: 2.0.0
+owner: AKO_studio
+status: production
 capabilities:
-  - id: "cap_visual_gen"
-    name: "视觉设计生成"
-    description: "基于文本描述生成建筑效果图和设计素材，支持多风格控制"
-    input:
-      - name: "design_prompt"
-        type: "string"
-        required: true
-        description: "设计描述文本"
-      - name: "style_params"
-        type: "json"
-        required: false
-        description: "风格参数（建筑风格/色系/构图等）"
-    output:
-      - name: "generated_images"
-        type: "list"
-        description: "生成图片文件路径列表"
-    priority: "P0"
-  - id: "cap_dwg_recognition"
-    name: "图纸识别翻模"
-    description: "识别施工图纸自动翻模为3D模型"
-    input:
-      - name: "drawing_file"
-        type: "file"
-        required: true
-        description: "图纸文件"
-    output:
-      - name: "model_result"
-        type: "file"
-        description: "输出3D模型文件"
-    priority: "P1"
-  - id: "cap_performance_analyze"
-    name: "建筑性能分析"
-    description: "基于设计方案进行热工/结构/声学等性能分析"
-    input:
-      - name: "design_model"
-        type: "file"
-        required: true
-        description: "设计模型文件"
-    output:
-      - name: "analysis_report"
-        type: "json"
-        description: "性能分析报告"
-    priority: "P1"
-
-# --- 编码架构 ---
-architecture:
-  language: "Python"
-  framework: "FastAPI"
-  entry_point: "app.py"
-  config_files:
-    - "config.yaml"
-    - "secrets.env"
-  dependencies:
-    - "requirements.txt"
-    - "AKO_agent_sdk_v2.py"
-  git_repo: ""
-
-# --- 运行态信息 ---
-runtime:
-  endpoint: "http://localhost:5009"
-  heartbeat_interval: 60
-  last_heartbeat: ""
-  status: ""
-  pid: 0
-  start_time: ""
-
-# --- 组织架构归属 ---
-org:
-  department: "商务中心"
-  product_line: "AKO_design_system"
-  reports_to: "AKO_hub"
-  team: "设计组"
-
-# --- 依赖关系 ---
-dependencies:
-  - agent_id: "AKO_hub"
-    type: "reports_to"
+- id: cap_visual_gen
+  name: 视觉设计生成
+  description: 基于文本描述生成建筑效果图和设计素材，支持多风格控制
+  input:
+  - name: design_prompt
+    type: string
     required: true
-    description: "任务分发上级"
-
-# --- 文档资产 ---
+    description: 设计描述文本
+  - name: style_params
+    type: json
+    required: false
+    description: 风格参数（建筑风格/色系/构图等）
+  output:
+  - name: generated_images
+    type: list
+    description: 生成图片文件路径列表
+  priority: P0
+- id: cap_dwg_recognition
+  name: 图纸识别翻模
+  description: 识别施工图纸自动翻模为3D模型
+  input:
+  - name: drawing_file
+    type: file
+    required: true
+    description: 图纸文件
+  output:
+  - name: model_result
+    type: file
+    description: 输出3D模型文件
+  priority: P1
+- id: cap_performance_analyze
+  name: 建筑性能分析
+  description: 基于设计方案进行热工/结构/声学等性能分析
+  input:
+  - name: design_model
+    type: file
+    required: true
+    description: 设计模型文件
+  output:
+  - name: analysis_report
+    type: json
+    description: 性能分析报告
+  priority: P1
+architecture:
+  language: Python
+  framework: FastAPI
+  entry_point: app.py
+  config_files:
+  - config.yaml
+  - secrets.env
+  dependencies:
+  - requirements.txt
+  - AKO_agent_sdk_v2.py
+  git_repo: ''
+runtime:
+  endpoint: http://localhost:5009
+  heartbeat_interval: 60
+  last_heartbeat: ''
+  status: ''
+  pid: 0
+  start_time: ''
+org:
+  department: 商务中心
+  product_line: AKO_design_system
+  reports_to: AKO_hub
+  team: 设计组
+dependencies:
+- agent_id: AKO_hub
+  type: reports_to
+  required: true
+  description: 任务分发上级
 metadata:
-  created: "2026-07-25"
-  updated: "2026-07-29"
-  tags: ["技术/AI-Agent", "技术/软件-设计", "技术/建筑"]
+  created: '2026-07-25'
+  updated: '2026-07-29'
+  tags:
+  - 技术/AI-Agent
+  - 技术/软件-设计
+  - 技术/建筑
   documents:
     whitepaper:
-      filename: "AKO_visual_design_agent_whitepaper_v2.0.md"
-      path: "./AKO_visual_design_agent_whitepaper_v2.0.md"
-      version: "2.0.0"
-      status: "production"
-      last_verified: ""
-
-# ============================================================
-# Health探测（强制）
-# ============================================================
+      filename: AKO_visual_design_agent_whitepaper_v2.0.md
+      path: ./AKO_visual_design_agent_whitepaper_v2.0.md
+      version: 2.0.0
+      status: production
+      last_verified: ''
 health:
   enabled: true
   probe_interval: 60
   business_probes:
-    - name: "核心功能自检"
-      enabled: true
-      timeout: 30
-    - name: "输入输出通道"
-      enabled: true
-      timeout: 10
-    - name: "依赖服务可用"
-      enabled: true
-      timeout: 5
+  - name: 核心功能自检
+    enabled: true
+    timeout: 30
+  - name: 输入输出通道
+    enabled: true
+    timeout: 10
+  - name: 依赖服务可用
+    enabled: true
+    timeout: 5
   system_probes:
-    - name: "CPU使用率"
-      enabled: true
-      threshold: 80
-    - name: "内存使用率"
-      enabled: true
-      threshold: 80
-    - name: "磁盘空间"
-      enabled: true
-      threshold: 80
-    - name: "网络连通"
-      enabled: true
-      timeout: 5
+  - name: CPU使用率
+    enabled: true
+    threshold: 80
+  - name: 内存使用率
+    enabled: true
+    threshold: 80
+  - name: 磁盘空间
+    enabled: true
+    threshold: 80
+  - name: 网络连通
+    enabled: true
+    timeout: 5
+author: AKO_studio
+tags:
+- design
+- image
+- architecture
+created_date: '2026-07-30'
+description: Ako Visual Design Agent Agent for AKO fleet automation.
+interfaces:
+  input: config.yaml / CLI parameters
+  output: Result files / logs
+health_probe:
+  endpoint: /health
+  expected_response: ok
+registry:
+  registry_agent: AKO_registry_agent
+  registered: false
