@@ -1,0 +1,59 @@
+{
+  "agent_name": "quote_agent",
+  "agent_display_name": "报价智能体",
+  "version": "2.1.0",
+  "client_name": "中黔顺安建设有限公司",
+  "client_short": "中黔顺安",
+
+  "features": [
+    {
+      "name": "报价计算",
+      "type": "calculation",
+      "ui_pattern": "form + result_panel",
+      "data_density": "high",
+      "interaction": "input -> calculate -> display"
+    },
+    {
+      "name": "材料清单",
+      "type": "data_table",
+      "ui_pattern": "editable_table",
+      "data_density": "very_high",
+      "interaction": "crud_operations"
+    },
+    {
+      "name": "PDF导出",
+      "type": "export",
+      "ui_pattern": "button + progress + save_dialog",
+      "data_density": "low",
+      "interaction": "trigger -> process -> complete"
+    },
+    {
+      "name": "历史记录",
+      "type": "history",
+      "ui_pattern": "list + detail_view",
+      "data_density": "medium",
+      "interaction": "select -> view -> compare"
+    }
+  ],
+
+  "interaction_scenarios": [
+    "首次启动引导",
+    "日常高频操作",
+    "数据批量处理",
+    "结果导出分享"
+  ],
+
+  "user_profile": {
+    "role": "造价工程师",
+    "technical_level": "intermediate",
+    "daily_usage_hours": 4,
+    "primary_device": "desktop_1920x1080"
+  },
+
+  "design_intent": {
+    "industry_tone": "construction",
+    "style_variance": "conservative",
+    "lighting_mode": "light",
+    "accent_preference": "warm"
+  }
+}

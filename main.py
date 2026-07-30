@@ -13,11 +13,56 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from ako_colors import AKO_COLORS, AMBER_GOLD, CREAM_GOLD, MOLTEN_GOLD
+from color_schemes import COLOR_SCHEMES, DEFAULT_SCHEME, ColorScheme, list_schemes
 from icon_builder import IconBuilder, ICO_STANDARD_SIZES
 from ako_icon_kit import ICON_LIBRARY, get_icon_definition, list_icons
 from ako_wizard_kit import WizardGenerator, TEMPLATES
 from ako_splash_kit import SplashGenerator, SPLASH_TEMPLATES
 from ako_drawing_kit import DrawingParser
+
+
+def _select_color_scheme(interactive: bool = True, preset_id: str = None) -> ColorScheme:
+    """色系选择：交互式/预设/默认"""
+    # 如果指定了预设ID，直接返回
+    if preset_id and preset_id in COLOR_SCHEMES:
+        return COLOR_SCHEMES[preset_id]
+
+    schemes = list_schemes()
+
+    if not interactive:
+        return DEFAULT_SCHEME
+
+    # 交互式选择
+    print(f"\n{'='*50}")
+    print(f"  配色方案选择")
+    print(f"{'='*50}")
+    print(f"  请选择配色方案（输入编号回车确认）:\n")
+
+    for i, scheme in enumerate(schemes, 1):
+        # 显示色系名称和描述
+        print(f"    {i}. {scheme.name} - {scheme.description}")
+        # 显示主色预览（用ANSI色块近似）
+        p = scheme.primary
+        pl = scheme.primary_light
+        print(f"       主色: RGB{p}  浅底: RGB{pl}")
+
+    print(f"\n  默认: 1 ({DEFAULT_SCHEME.name})")
+
+    while True:
+        choice = input("\n  请选择配色方案编号: ").strip()
+        if not choice:
+            print(f"  已选择默认: {DEFAULT_SCHEME.name}")
+            return DEFAULT_SCHEME
+        if choice.isdigit() and 1 <= int(choice) <= len(schemes):
+            selected = schemes[int(choice) - 1]
+            print(f"  已选择: {selected.name}")
+            return selected
+        # 尝试按ID匹配
+        if choice in COLOR_SCHEMES:
+            selected = COLOR_SCHEMES[choice]
+            print(f"  已选择: {selected.name}")
+            return selected
+        print("  无效选择，请重新输入")
 from element_recognizer import ElementRecognizer
 from annotation_ocr import AnnotationOCR
 from ako_bim_kit import BIMBuilder
@@ -37,10 +82,12 @@ from mockup_generator import MockupGenerator
 # v1.2 功能感知型视觉设计Agent工作流（四层架构）
 # =============================================
 
-def run_functional_design_agent(config: dict, output_dir: str = "output"):
+def run_functional_design_agent(config: dict, output_dir: str = "output",
+                                 interactive: bool = True):
     """
     功能感知型四层架构工作流
     Perceptor -> Planner -> Reviewer -> Producer
+    interactive: 是否启用小样确认交互（False=直接输出成品）
     """
     print("\n" + "=" * 60)
     print("  AKO 功能感知型视觉设计Agent v1.2 - 四层架构工作流")
@@ -51,7 +98,8 @@ def run_functional_design_agent(config: dict, output_dir: str = "output"):
     trace_id = config.get("trace_id", f"AKO-VD-{datetime.now().strftime('%Y%m%d')}-001")
     config["trace_id"] = trace_id
 
-    agent_dir = os.path.join(output_dir, "functional_design", agent_name)
+    # 输出文件夹与项目名称（agent_name）保持一致
+    agent_dir = os.path.join(output_dir, agent_name)
     os.makedirs(agent_dir, exist_ok=True)
 
     # ============================
@@ -103,14 +151,49 @@ def run_functional_design_agent(config: dict, output_dir: str = "output"):
     print(f"  设计方案(JSON): {proposal_json}")
     print(f"  设计方案(MD): {proposal_md}")
 
-    # 生成小样文件
+    # ============================
+    # 色系选择（交互式/配置预设）
+    # ============================
+    preset_scheme_id = config.get("color_scheme_id")
+    selected_scheme = _select_color_scheme(
+        interactive=interactive,
+        preset_id=preset_scheme_id
+    )
+    config["color_scheme_id"] = selected_scheme.id
+    print(f"  配色方案: {selected_scheme.name} ({selected_scheme.id})")
+
+    # 生成小样文件（使用选中色系）
     print(f"\n  生成视觉小样...")
-    mockup_gen = MockupGenerator(report, proposal)
+    mockup_gen = MockupGenerator(report, proposal, scheme=selected_scheme)
     mockup_dir = os.path.join(agent_dir, "mockups")
     mockup_results = mockup_gen.generate_all(mockup_dir)
     for mtype, mpath in mockup_results.items():
         print(f"  小样[{mtype}]: {mpath}")
         proposal.mockup_files[mtype] = mpath
+
+    # ============================
+    # 小样确认交互
+    # ============================
+    if interactive:
+        print(f"\n{'='*50}")
+        print(f"  小样预览确认")
+        print(f"{'='*50}")
+        print(f"  小样已生成，请查看:")
+        for mtype, mpath in mockup_results.items():
+            abs_path = os.path.abspath(mpath)
+            print(f"    [{mtype}] {abs_path}")
+        print(f"\n  提示: 可打开上述文件预览效果")
+        while True:
+            confirm = input("\n  确认小样，继续生成成品？(y/n): ").strip().lower()
+            if confirm in ("y", "yes", ""):
+                print("  已确认，继续生产流程...")
+                break
+            elif confirm in ("n", "no"):
+                print("  已取消。可修改配置后重新运行。")
+                print(f"  小样保留在: {os.path.abspath(mockup_dir)}")
+                return None
+            else:
+                print("  请输入 y 或 n")
 
     # ============================
     # Layer 3: Reviewer（审批层）
@@ -344,8 +427,9 @@ def cli():
 
 @cli.command()
 @click.option("--config", "-c", default=None, help="配置文件路径(JSON)")
-@click.option("--output", "-o", default="output", help="输出目录")
-def functional(config, output):
+@click.option("--output", "-o", default=None, help="输出目录(默认从配置读取或output)")
+@click.option("--yes", "-y", is_flag=True, help="跳过小样确认，直接输出成品")
+def functional(config, output, yes):
     """运行功能感知型视觉设计Agent（v1.2四层架构）"""
     if config:
         with open(config, "r", encoding="utf-8") as f:
@@ -373,13 +457,15 @@ def functional(config, output):
             "design_intent": {"industry_tone": "construction", "style_variance": "conservative",
                               "lighting_mode": "light", "accent_preference": "warm"},
         }
-    run_functional_design_agent(cfg, output)
+    out = output or cfg.get("output_dir", "output")
+    run_functional_design_agent(cfg, out, interactive=not yes)
 
 
 @cli.command()
 @click.option("--config", "-c", default=None, help="配置文件路径(JSON)")
-@click.option("--output", "-o", default="output", help="输出目录")
-def visual(config, output):
+@click.option("--output", "-o", default=None, help="输出目录(默认从配置读取或output)")
+@click.option("--yes", "-y", is_flag=True, help="跳过小样确认，直接输出成品")
+def visual(config, output, yes):
     """运行视觉设计Agent（基础版）"""
     if config:
         with open(config, "r", encoding="utf-8") as f:
@@ -393,24 +479,26 @@ def visual(config, output):
             "client_short": "中黔顺安",
             "features": ["报价计算", "材料清单", "PDF导出", "历史记录"],
         }
+    out = output or cfg.get("output_dir", "output")
     # 使用旧版工作流
     from main import _run_visual_design_legacy
-    _run_visual_design_legacy(cfg, output)
+    _run_visual_design_legacy(cfg, out, interactive=not yes)
 
 
 @cli.command()
 @click.argument("drawing_file")
-@click.option("--output", "-o", default="output", help="输出目录")
+@click.option("--output", "-o", default=None, help="输出目录(默认output)")
 @click.option("--project", "-p", default="project", help="项目名称")
 @click.option("--floors", "-f", default=1, help="楼层数")
 def drawing(drawing_file, output, project, floors):
     """运行图纸识别与翻模Agent"""
-    run_drawing_recognition_agent(drawing_file, output, project, floors)
+    out = output or "output"
+    run_drawing_recognition_agent(drawing_file, out, project, floors)
 
 
 @cli.command()
 @click.option("--config", "-c", default=None, help="配置文件路径(JSON)")
-@click.option("--output", "-o", default="output", help="输出目录")
+@click.option("--output", "-o", default=None, help="输出目录(默认从配置读取或output)")
 def analysis(config, output):
     """运行建筑性能分析Agent"""
     if config:
@@ -427,7 +515,8 @@ def analysis(config, output):
             "window_ratio": 0.35,
             "orientation": "south",
         }
-    run_performance_analysis_agent(cfg, output)
+    out = output or cfg.get("output_dir", "output")
+    run_performance_analysis_agent(cfg, out)
 
 
 @cli.command()
@@ -461,7 +550,7 @@ def demo():
         "design_intent": {"industry_tone": "construction", "style_variance": "conservative",
                           "lighting_mode": "light", "accent_preference": "warm"},
     }
-    run_functional_design_agent(functional_config)
+    run_functional_design_agent(functional_config, interactive=False)
 
     # 2. 建筑性能分析Agent
     analysis_config = {
@@ -482,7 +571,8 @@ def demo():
     print("=" * 60)
 
 
-def _run_visual_design_legacy(config: dict, output_dir: str = "output"):
+def _run_visual_design_legacy(config: dict, output_dir: str = "output",
+                               interactive: bool = True):
     """旧版视觉设计Agent工作流（保留兼容）"""
     print("\n" + "=" * 60)
     print("  AKO 视觉设计Agent（基础版）- 开始工作")
@@ -493,7 +583,8 @@ def _run_visual_design_legacy(config: dict, output_dir: str = "output"):
     client_name = config.get("client_short", config.get("client_name", "客户"))
     features = config.get("features", [])
 
-    agent_dir = os.path.join(output_dir, "visual_assets", agent_name)
+    # 输出文件夹与项目名称保持一致
+    agent_dir = os.path.join(output_dir, agent_name)
     os.makedirs(agent_dir, exist_ok=True)
 
     print(f"\n[Step 1] 生成主图标...")
@@ -521,6 +612,26 @@ def _run_visual_design_legacy(config: dict, output_dir: str = "output"):
         output=os.path.join(agent_dir, f"splash_{agent_name}_{client_name}_v{version}.png"),
     )
     print(f"  Splash: {splash_path}")
+
+    # 小样确认交互
+    if interactive:
+        print(f"\n{'='*50}")
+        print(f"  小样预览确认")
+        print(f"{'='*50}")
+        print(f"  小样已生成，请查看:")
+        print(f"    [icon] {os.path.abspath(ico_path)}")
+        print(f"    [splash] {os.path.abspath(splash_path)}")
+        print(f"\n  提示: 可打开上述文件预览效果")
+        while True:
+            confirm = input("\n  确认小样，继续生成成品？(y/n): ").strip().lower()
+            if confirm in ("y", "yes", ""):
+                print("  已确认，继续...")
+                break
+            elif confirm in ("n", "no"):
+                print("  已取消。")
+                return None
+            else:
+                print("  请输入 y 或 n")
 
     print(f"\n[Step 3] 质量检查...")
     qg = QualityGate(project_name=agent_name)

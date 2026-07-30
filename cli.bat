@@ -1,42 +1,26 @@
 @echo off
-chcp 65001 >nul
-:: AKO_visual_design_agent CLI 快捷启动脚本
-:: 作者：AKO_studio
-:: 版本：v1.2
-
 setlocal
+title AKO Visual Design Agent v1.2
 
-title AKO Visual Design Agent CLI
+if not "%~1"=="" goto :run
 
-:: 如果已安装到系统 PATH，直接用
+REM No arguments: launch interactive wizard
+python "%~dp0config_wizard.py"
+goto :done
+
+:run
 where AKO_visual_design_agent.exe >nul 2>nul
 if %errorlevel% equ 0 (
-    echo ============================================================
-    echo  AKO Visual Design Agent v1.2.0
-    echo  四层架构: Perceptor → Planner → Reviewer → Producer
-    echo ============================================================
-    echo.
     AKO_visual_design_agent.exe %*
-    goto :end
+    goto :done
 )
-
-:: 如果有本地 dist
 if exist "%~dp0dist\AKO_visual_design_agent.exe" (
-    echo ============================================================
-    echo  AKO Visual Design Agent v1.2.0 (开发模式)
-    echo ============================================================
-    echo.
     "%~dp0dist\AKO_visual_design_agent.exe" %*
-    goto :end
+    goto :done
 )
-
-:: Python 源码模式
-echo ============================================================
-echo  AKO Visual Design Agent v1.2.0 (源码模式)
-echo ============================================================
-echo.
 python "%~dp0main.py" %*
-goto :end
 
-:end
+:done
+python -c "import msvcrt; print(); print('  \u6309\u4efb\u610f\u952e\u9000\u51fa...'); msvcrt.getch()"
 endlocal
+exit /b
