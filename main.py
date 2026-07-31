@@ -481,7 +481,6 @@ def visual(config, output, yes):
         }
     out = output or cfg.get("output_dir", "output")
     # 使用旧版工作流
-    from main import _run_visual_design_legacy
     _run_visual_design_legacy(cfg, out, interactive=not yes)
 
 

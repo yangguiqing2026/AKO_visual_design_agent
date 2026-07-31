@@ -116,12 +116,18 @@ health:
     enabled: true
     timeout: 5
 author: AKO_studio
+category: ['design', 'visual']
+interface_type: cli
+category:
+- design
+- visual
+interface_type: cli
 tags:
 - design
 - image
 - architecture
 created_date: '2026-07-30'
-description: Ako Visual Design Agent Agent for AKO fleet automation.
+description: AKO Visual Design Agent for AKO fleet automation.
 interfaces:
   input: config.yaml / CLI parameters
   output: Result files / logs
@@ -131,3 +137,7 @@ health_probe:
 registry:
   registry_agent: AKO_registry_agent
   registered: false
+compliance:
+  veto_flags:
+    V2_icon_builder_missing: true
+    note: icon_builder模块ImportError，需创建icon_builder.py并修复main.py循环引用
